@@ -13,7 +13,6 @@ public class PlayerScript : MonoBehaviourPunCallbacks, IPunObservable
     public PhotonView PV;
     public Text NicknameText;
     public Image HealthImage;
-
     bool isGround;
     Vector3 curPos;
 

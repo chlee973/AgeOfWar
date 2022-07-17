@@ -157,10 +157,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idleDistance: 0.5
-  moveSpeed: 1
+  moveSpeed: 0.8
   attackDistance: 1
-  attackCooldown: 1
-  damage: 30
+  attackCooldown: 2
+  damage: 20
   currentHealth: 0
   maxHealth: 100
   isRed: 0

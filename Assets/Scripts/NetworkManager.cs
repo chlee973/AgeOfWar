@@ -44,6 +44,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             DisconnectPanel.SetActive(false);
             SpawnPanel.SetActive(true);
+            SpawnCastle();
         }
     }
 
@@ -53,6 +54,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             LoadingPanel.SetActive(false);
             SpawnPanel.SetActive(true);
+            SpawnCastle();
         }
     }
     private void Update()
@@ -76,5 +78,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         SpawnPanel.SetActive(false);
         LoadingPanel.SetActive(false);
         DisconnectPanel.SetActive(true);
+    }
+
+    public void SpawnCastle()
+    {
+        Vector3 spawnPos = isHost ? new Vector3(-8, -3.5f, 0) : new Vector3(8, -3.5f, 0);
+        string castleType = isHost ? "BaseBlue" : "BaseBlue";
+        PhotonNetwork.Instantiate(castleType, spawnPos, Quaternion.identity);
     }
 }

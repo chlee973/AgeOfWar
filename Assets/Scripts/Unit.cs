@@ -58,8 +58,8 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
             if (EnemyInSight())
             {
                 Stop();
-                if(cooldownTimer >= Random.Range((float)(attackCooldown - 0.2), (float)(attackCooldown + 3.0)))
-                    if (cooldownTimer >= attackCooldown)
+                // if(cooldownTimer >= Random.Range((float)(attackCooldown - 0.2), (float)(attackCooldown + 3.0)))
+                if (cooldownTimer >= attackCooldown)
                 {
                     cooldownTimer = 0;
                     photonView.RPC("AttackRPC", RpcTarget.All);
@@ -83,14 +83,14 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
     private void Stop()
     {
         rigidBody.velocity = new Vector2(0, rigidBody.velocity.y);
-        animator.SetBool("idle", true);
+        photonView.RPC("StopRPC", RpcTarget.All);
     }
 
     private void Move()
     {
         float horizontal = isHost ? moveSpeed : -moveSpeed;
         rigidBody.velocity = new Vector2(horizontal, rigidBody.velocity.y);
-        animator.SetBool("idle", false);
+        photonView.RPC("MoveRPC", RpcTarget.All);
     }
 
     private bool EnemyInSight()
@@ -118,7 +118,17 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
     private void AttackRPC()
     {
         animator.SetTrigger("attack");
-        enemyObj.GetComponent<Unit>().TakeDamage(damage);
+        enemyObj?.GetComponent<Unit>()?.TakeDamage(damage);
+    }
+    [PunRPC]
+    private void StopRPC()
+    {
+        animator.SetBool("idle", true);
+    }
+    [PunRPC]
+    private void MoveRPC()
+    {
+        animator.SetBool("idle", false);
     }
 
     [PunRPC]
@@ -165,12 +175,12 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
         if (stream.IsWriting)
         {
             stream.SendNext(transform.position);
-            stream.SendNext(currentHealth);
+            // stream.SendNext(currentHealth);
         }
         else
         {
             curPos = (Vector3)stream.ReceiveNext();
-            currentHealth = (float)stream.ReceiveNext();
+            // currentHealth = (float)stream.ReceiveNext();
         }
     }
 }
