@@ -227,22 +227,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 938797037bbc727438645d74741c983a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rigidBody: {fileID: 0}
-  capsuleCollider: {fileID: 4953549100033040960}
-  photonView: {fileID: 0}
-  spriteRenderer: {fileID: 0}
-  animator: {fileID: 0}
-  idleLayer:
-    serializedVersion: 2
-    m_Bits: 512
-  attackLayer:
-    serializedVersion: 2
-    m_Bits: 1024
   idleDistance: 0.3
-  idleRange: 4
-  moveSpeed: 3
-  attackRange: 2
+  moveSpeed: 1
   attackDistance: 1
   attackCooldown: 1
-  damage: 4
-  maxHealth: 50
+  damage: 10
+  currentHealth: 0
+  maxHealth: 100
+  isRed: 1

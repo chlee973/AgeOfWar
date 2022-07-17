@@ -9,8 +9,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 {
     public InputField NicknameInput;
     public GameObject DisconnectPanel;
-    public GameObject RespawnPanel;
     public GameObject LoadingPanel;
+    public GameObject SpawnPanel;
     public bool isHost;
 
     private void Awake()
@@ -25,6 +25,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
+        isHost = false;
         DisconnectPanel.SetActive(false);
         PhotonNetwork.LocalPlayer.NickName = NicknameInput.text;
         PhotonNetwork.JoinRandomRoom();
@@ -42,8 +43,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.CurrentRoom.PlayerCount >= 2)
         {
             DisconnectPanel.SetActive(false);
-            //StartCoroutine("DestroyBullet");
-            Spawn();
+            SpawnPanel.SetActive(true);
         }
     }
 
@@ -52,7 +52,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.CurrentRoom.PlayerCount >= 2)
         {
             LoadingPanel.SetActive(false);
-            Spawn();
+            SpawnPanel.SetActive(true);
         }
     }
     private void Update()
@@ -66,27 +66,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnDisconnected(DisconnectCause cause)
     {
         DisconnectPanel.SetActive(true);
-        RespawnPanel.SetActive(false);
-    }
-
-    //IEnumerator DestroyBullet()
-    //{
-    //    yield return new WaitForSeconds(0.2f);
-    //    foreach (GameObject Go in GameObject.FindGameObjectsWithTag("Bullet")) Go.GetComponent<PhotonView>().RPC("DestroyRPC", RpcTarget.All);
-    //}
-    public void Spawn()
-    {
-        Debug.Log("스폰 실행됨");
-        PhotonNetwork.Instantiate("Player", isHost ? new Vector3(-6, 0, 0) : new Vector3(6, 0, 0), Quaternion.identity);
-        RespawnPanel.SetActive(false);
+        SpawnPanel.SetActive(false);
     }
 
     public void OnClickCancel()
     {
         PhotonNetwork.LeaveRoom();
         PhotonNetwork.Disconnect();
+        SpawnPanel.SetActive(false);
         LoadingPanel.SetActive(false);
         DisconnectPanel.SetActive(true);
     }
-
 }

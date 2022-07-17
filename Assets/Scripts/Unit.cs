@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
-using System;
 
 public class Unit : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -16,13 +15,8 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
     private Animator animator;
     private GameObject enemyObj;
 
-    [SerializeField] private LayerMask idleLayer;
-    [SerializeField] private LayerMask attackLayer;
-
     [SerializeField] private float idleDistance;
-    [SerializeField] private float idleRange;
     [SerializeField] private float moveSpeed;
-    [SerializeField] private float attackRange;
     [SerializeField] private float attackDistance;
     [SerializeField] private float attackCooldown;
     [SerializeField] private float damage;
@@ -30,41 +24,60 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
 
     private float cooldownTimer = Mathf.Infinity;
 
-    private float currentHealth;
+    [SerializeField] private float currentHealth;
     [SerializeField] private float maxHealth;
+    [SerializeField] private bool isRed;
 
+    private bool isHost;
+    private LayerMask enemyLayer;
+    private LayerMask allyLayer;
+    Vector3 curPos;
     void Awake()
     {
+        isHost = GameObject.Find("NetworkManager").GetComponent<NetworkManager>().isHost;
         rigidBody = GetComponent<Rigidbody2D>();
         photonView = GetComponent<PhotonView>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         capsuleCollider = GetComponent<CapsuleCollider2D>();
+        currentHealth = maxHealth;
+        if (photonView.IsMine)
+        {
+            photonView.RPC("FlipXRPC", RpcTarget.AllBuffered, isHost);
+            photonView.RPC("LayerRPC", RpcTarget.AllBuffered, isHost);
+        }
+        
     }
+    
 
-    private void FixedUpdate()
+    private void Update()
     {
         cooldownTimer += Time.deltaTime;
-        if (EnemyInSight())
+        if(photonView.IsMine)
         {
-            Stop();
-            if (cooldownTimer >= attackCooldown)
+            if (EnemyInSight())
             {
-                cooldownTimer = 0;
-                Attack();
-                animator.SetTrigger("attack");
-            }
+                Stop();
+                if(cooldownTimer >= Random.Range((float)(attackCooldown - 0.2), (float)(attackCooldown + 3.0)))
+                    if (cooldownTimer >= attackCooldown)
+                {
+                    cooldownTimer = 0;
+                    photonView.RPC("AttackRPC", RpcTarget.All);
+                    
+                }
 
+            }
+            else if (AllyInSight())
+            {
+                Stop();
+            }
+            else
+            {
+                Move();
+            }
         }
-        else if (AllyInSight())
-        {
-            Debug.Log("아군 앞에 있음");
-            Stop();
-        }
-        else
-        {
-            Move();
-        }
+        else if ((transform.position - curPos).sqrMagnitude >= 100) transform.position = curPos;
+        else transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
     }
 
     private void Stop()
@@ -75,14 +88,16 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
 
     private void Move()
     {
-        rigidBody.velocity = new Vector2(moveSpeed, rigidBody.velocity.y);
+        float horizontal = isHost ? moveSpeed : -moveSpeed;
+        rigidBody.velocity = new Vector2(horizontal, rigidBody.velocity.y);
         animator.SetBool("idle", false);
     }
 
     private bool EnemyInSight()
     {
-        RaycastHit2D hit = Physics2D.Raycast((Vector2)capsuleCollider.bounds.center + Vector2.right * capsuleCollider.size.x, Vector2.right, attackDistance, attackLayer);
-        Debug.DrawRay((Vector2)capsuleCollider.bounds.center + Vector2.right * capsuleCollider.size.x, Vector3.right * attackDistance, Color.red);
+        Vector2 dir = isHost ? Vector2.right : Vector2.left;
+        RaycastHit2D hit = Physics2D.Raycast((Vector2)capsuleCollider.bounds.center + dir * capsuleCollider.size.x, dir, attackDistance, enemyLayer);
+        Debug.DrawRay((Vector2)capsuleCollider.bounds.center + dir * capsuleCollider.size.x, dir * attackDistance, Color.red);
         bool result = hit.collider != null;
         if(result == true)
         {
@@ -92,25 +107,70 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
     }
     private bool AllyInSight()
     {
-        RaycastHit2D hit = Physics2D.Raycast((Vector2)capsuleCollider.bounds.center + Vector2.right * capsuleCollider.size.x, Vector2.right, attackDistance, idleLayer);
-        Debug.DrawRay((Vector2)capsuleCollider.bounds.center + Vector2.right * capsuleCollider.size.x, Vector3.right * idleDistance, Color.blue);
+        Vector2 dir = isHost ? Vector2.right : Vector2.left;
+        RaycastHit2D hit = Physics2D.Raycast((Vector2)capsuleCollider.bounds.center + dir * capsuleCollider.size.x, dir, idleDistance, allyLayer);
+        Debug.DrawRay((Vector2)capsuleCollider.bounds.center + dir * capsuleCollider.size.x, dir * idleDistance, Color.blue);
         return hit.collider != null;
     }
 
     
-
-    private void Attack()
+    [PunRPC]
+    private void AttackRPC()
     {
+        animator.SetTrigger("attack");
         enemyObj.GetComponent<Unit>().TakeDamage(damage);
     }
 
+    [PunRPC]
+    void DestroyRPC()
+    {
+        float time;
+        RuntimeAnimatorController ac = animator.runtimeAnimatorController;    //Get Animator controller
+        for (int i = 0; i < ac.animationClips.Length; i++)                 //For all animations
+        {
+            if (ac.animationClips[i].name == "Die")        //If it has the same name as your clip
+            {
+                time = ac.animationClips[i].length;
+                animator.SetTrigger("die");
+                Destroy(gameObject, time);
+            }
+        }
+    }
+
+    [PunRPC]
+    void FlipXRPC(bool isHost)
+    {
+        spriteRenderer.flipX = !isHost;
+    }
+    [PunRPC]
+    void LayerRPC(bool isHost)
+    {
+        gameObject.layer = isHost ? LayerMask.NameToLayer("Red") : LayerMask.NameToLayer("Blue");
+        allyLayer = 1 << gameObject.layer;
+        enemyLayer = 1 << (isHost ? LayerMask.NameToLayer("Blue") : LayerMask.NameToLayer("Red"));
+    }
     public void TakeDamage(float damage)
     {
-        //animator.SetTrigger("")
+        currentHealth -= damage;
+        if(currentHealth <= 0)
+        {
+            photonView.RPC("DestroyRPC", RpcTarget.All);
+            
+        }
     }
+
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        //throw new NotImplementedException();
+        if (stream.IsWriting)
+        {
+            stream.SendNext(transform.position);
+            stream.SendNext(currentHealth);
+        }
+        else
+        {
+            curPos = (Vector3)stream.ReceiveNext();
+            currentHealth = (float)stream.ReceiveNext();
+        }
     }
 }
