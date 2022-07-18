@@ -46,10 +46,11 @@ public class PlayerScript : MonoBehaviourPunCallbacks, IPunObservable
             // 바닥 체크
             isGround = Physics2D.OverlapCircle((Vector2)transform.position + (RB.gravityScale > 0 ? new Vector2(0, -0.5f) : new Vector2(0, 0.5f)), 0.07f, 1 << LayerMask.NameToLayer("Ground"));
             AN.SetBool("jump", !isGround);
-            if (Input.GetKeyDown(KeyCode.LeftShift) && isGround)
+            if ((Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift)) && isGround)
             {
                 PV.RPC("JumpRPC", RpcTarget.AllBuffered);
             }
+            
             PV.RPC("FlipYRPC", RpcTarget.AllBuffered, RB.gravityScale);
             if (Input.GetKeyDown(KeyCode.Space))
             {
@@ -57,7 +58,7 @@ public class PlayerScript : MonoBehaviourPunCallbacks, IPunObservable
                     .GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, SR.flipX ? -1 : 1);
                 PV.RPC("ShotRPC", RpcTarget.AllBuffered);
             }
-
+            GameObject.Find("Canvas").transform.Find("Spawn Panel").gameObject.GetComponent<GameManager>().gravityScale = RB.gravityScale;
         }
         else if ((transform.position - curPos).sqrMagnitude >= 100) transform.position = curPos;
         else transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
@@ -84,10 +85,6 @@ public class PlayerScript : MonoBehaviourPunCallbacks, IPunObservable
         if(HealthImage.fillAmount <= 0)
         {
             PV.RPC("DestroyRPC", RpcTarget.AllBuffered);
-            if(PV.IsMine)
-            {
-                GameObject.Find("Canvas").transform.Find("Respawn Panel").gameObject.SetActive(true);
-            }
         }
     }
     [PunRPC] 

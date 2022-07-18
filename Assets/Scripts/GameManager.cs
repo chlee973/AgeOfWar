@@ -12,13 +12,14 @@ public class GameManager : MonoBehaviourPunCallbacks
     [SerializeField] private float cooldownTime;
     [SerializeField] Text manaText;
     [SerializeField] Image manaImage;
-
+    public float gravityScale;
     public override void OnEnable()
     {
         cooldownTime = 1.0f;
-        maxMana = 50;
+        maxMana = 10;
         currentMana = 0;
         StartCoroutine("RestoreMana", cooldownTime);
+        gravityScale = 1.0f;
         UpdateManaUI();
     }
     private void Update()
@@ -35,12 +36,12 @@ public class GameManager : MonoBehaviourPunCallbacks
     public void SpawnNinja()
 
     {
-        if(currentMana >= 3)
+        if(currentMana >= 5)
         {
             bool isHost = GameObject.Find("NetworkManager").GetComponent<NetworkManager>().isHost;
             Vector3 spawnPos = isHost ? new Vector3(-7, -4.5f, 0) : new Vector3(7, -4.5f, 0);
             PhotonNetwork.Instantiate("Ninja", spawnPos, Quaternion.identity);
-            currentMana -= 3;
+            currentMana -= 5;
             UpdateManaUI();
         }
     }
@@ -60,7 +61,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     IEnumerator RestoreMana(float cooldownTime)
     {
         // Debug.Log("Time = "+Time.time);
-        if(currentMana < maxMana)
+        if(currentMana < maxMana && gravityScale < 0)
         {
             currentMana += 1;
             UpdateManaUI();

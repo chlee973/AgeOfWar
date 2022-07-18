@@ -62,10 +62,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) && PhotonNetwork.IsConnected)
-        {
-            PhotonNetwork.Disconnect();
-        }
+        // if (Input.GetKeyDown(KeyCode.Escape) && PhotonNetwork.IsConnected)
+        // {
+        //     PhotonNetwork.Disconnect();
+        // }
     }
 
     public override void OnDisconnected(DisconnectCause cause)
