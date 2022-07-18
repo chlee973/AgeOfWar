@@ -21,7 +21,18 @@ public class GameManager : MonoBehaviourPunCallbacks
         StartCoroutine("RestoreMana", cooldownTime);
         UpdateManaUI();
     }
-    public void OnClickNinjaSpawn()
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Q))
+        {
+            SpawnNinja();
+        }
+        if(Input.GetKeyDown(KeyCode.W))
+        {
+            SpawnWolf();
+        }
+    }
+    public void SpawnNinja()
 
     {
         if(currentMana >= 3)
@@ -34,7 +45,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
-    public void OnClickWolfSpawn()
+    public void SpawnWolf()
     {
         if(currentMana >= 10)
         {

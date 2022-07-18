@@ -23,7 +23,8 @@ public class PlayerScript : MonoBehaviourPunCallbacks, IPunObservable
         NicknameText.color = PV.IsMine ? Color.green : Color.red;
         if(PV.IsMine)
         {
-            SR.flipX = !GameObject.Find("NetworkManager").GetComponent<NetworkManager>().isHost;
+            bool isHost = GameObject.Find("NetworkManager").GetComponent<NetworkManager>().isHost;
+            PV.RPC("FlipXRPC", RpcTarget.AllBuffered, isHost ? 1.0f : -1.0f);
         }
     }
 
@@ -79,7 +80,7 @@ public class PlayerScript : MonoBehaviourPunCallbacks, IPunObservable
 
     public void Hit()
     {
-        HealthImage.fillAmount -= 0.1f;
+        HealthImage.fillAmount -= 0.05f;
         if(HealthImage.fillAmount <= 0)
         {
             PV.RPC("DestroyRPC", RpcTarget.AllBuffered);

@@ -27,7 +27,12 @@ public class BulletScript : MonoBehaviourPunCallbacks
         }
         if(!PV.IsMine && collision.CompareTag("Player") && collision.GetComponent<PhotonView>().IsMine)
         {
-            collision.GetComponent<PlayerScript>().Hit();
+            collision?.GetComponent<PlayerScript>()?.Hit();
+            PV.RPC("DestroyRPC", RpcTarget.AllBuffered);
+        }
+        if(!PV.IsMine && collision.CompareTag("Unit") && collision.GetComponent<PhotonView>().IsMine)
+        {
+            collision?.GetComponent<Unit>()?.TakeDamage(2.5f);
             PV.RPC("DestroyRPC", RpcTarget.AllBuffered);
         }
     }

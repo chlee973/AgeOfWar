@@ -13,7 +13,8 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
     private PhotonView photonView;
     private SpriteRenderer spriteRenderer;
     private Animator animator;
-    private GameObject enemyObj;
+    private RaycastHit2D enemyObj;
+    public Image healthImage;
 
     [SerializeField] private float idleDistance;
     [SerializeField] private float moveSpeed;
@@ -34,6 +35,7 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
     Vector3 curPos;
     void Awake()
     {
+        Debug.Log("유닛 생성");
         isHost = GameObject.Find("NetworkManager").GetComponent<NetworkManager>().isHost;
         rigidBody = GetComponent<Rigidbody2D>();
         photonView = GetComponent<PhotonView>();
@@ -43,27 +45,27 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
         currentHealth = maxHealth;
         if (photonView.IsMine)
         {
-            photonView.RPC("FlipXRPC", RpcTarget.AllBuffered, isHost);
-            photonView.RPC("LayerRPC", RpcTarget.AllBuffered, isHost);
+            photonView.RPC("FlipXRPC", RpcTarget.All, isHost);
+            photonView.RPC("LayerRPC", RpcTarget.All, isHost);
         }
-        
+        UpdateHealth();
     }
     
 
     private void Update()
     {
-        cooldownTimer += Time.deltaTime;
         if(photonView.IsMine)
         {
+            cooldownTimer += Time.deltaTime;
             if (EnemyInSight())
             {
                 Stop();
-                // if(cooldownTimer >= Random.Range((float)(attackCooldown - 0.2), (float)(attackCooldown + 3.0)))
-                if (cooldownTimer >= attackCooldown)
+                if(cooldownTimer >= Random.Range((float)(attackCooldown - 0.2f), (float)(attackCooldown + 3.0f)))
+                // if (cooldownTimer >= attackCooldown)
                 {
                     cooldownTimer = 0;
                     photonView.RPC("AttackRPC", RpcTarget.All);
-                    
+                    enemyObj.transform.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, damage);
                 }
 
             }
@@ -83,14 +85,14 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
     private void Stop()
     {
         rigidBody.velocity = new Vector2(0, rigidBody.velocity.y);
-        photonView.RPC("StopRPC", RpcTarget.All);
+        animator.SetBool("idle", true);
     }
 
     private void Move()
     {
         float horizontal = isHost ? moveSpeed : -moveSpeed;
         rigidBody.velocity = new Vector2(horizontal, rigidBody.velocity.y);
-        photonView.RPC("MoveRPC", RpcTarget.All);
+        animator.SetBool("idle", false);
     }
 
     private bool EnemyInSight()
@@ -101,7 +103,7 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
         bool result = hit.collider != null;
         if(result == true)
         {
-            enemyObj = hit.collider.gameObject;
+            enemyObj = hit;
         }
         return result;
     }
@@ -118,7 +120,6 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
     private void AttackRPC()
     {
         animator.SetTrigger("attack");
-        enemyObj?.GetComponent<Unit>()?.TakeDamage(damage);
     }
     [PunRPC]
     private void StopRPC()
@@ -159,28 +160,42 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
         allyLayer = 1 << gameObject.layer;
         enemyLayer = 1 << (isHost ? LayerMask.NameToLayer("Blue") : LayerMask.NameToLayer("Red"));
     }
+
+    [PunRPC]
     public void TakeDamage(float damage)
     {
-        currentHealth -= damage;
-        if(currentHealth <= 0)
-        {
-            photonView.RPC("DestroyRPC", RpcTarget.All);
-            
-        }
+            Debug.Log("딜 들어가는중");
+            currentHealth -= damage;
+            if(currentHealth <= 0)
+            {
+                photonView.RPC("DestroyRPC", RpcTarget.All);
+                
+            }
+            else
+            {
+                UpdateHealth();
+            }
     }
 
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        if (stream.IsWriting)
-        {
-            stream.SendNext(transform.position);
-            // stream.SendNext(currentHealth);
-        }
-        else
-        {
-            curPos = (Vector3)stream.ReceiveNext();
-            // currentHealth = (float)stream.ReceiveNext();
-        }
+            if (stream.IsWriting)
+            {
+                stream.SendNext(transform.position);
+                stream.SendNext(currentHealth);
+                stream.SendNext(healthImage.fillAmount);
+            }
+            else
+            {
+                curPos = (Vector3)stream.ReceiveNext();
+                currentHealth = (float)stream.ReceiveNext();
+                healthImage.fillAmount = (float)stream.ReceiveNext();
+            }
+    }
+
+    public void UpdateHealth()
+    {
+        healthImage.fillAmount = (float)currentHealth / maxHealth;
     }
 }
