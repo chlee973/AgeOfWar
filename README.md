@@ -5,10 +5,12 @@
 기존에는 위와 같은 클래식한 디펜스 게임을 구상했지만 슈팅게임과 중력반전 기능을 게임에 섞어보고 싶어 아래와 같은 게임을 만들게 되었다.
 
 
+
 ## 게임 설명
 ### 초기 화면
 > 게임을 실행하면 6자 이하의 닉네임을 입력받는다.
 > ![KakaoTalk_20220719_184324861](https://user-images.githubusercontent.com/51320553/179724897-6f6502a6-341f-4f16-9dfc-d39a01573cac.png)
+
 
 
 ### 랜덤 매칭
@@ -33,14 +35,17 @@
 > ![KakaoTalk_20220719_184643681](https://user-images.githubusercontent.com/51320553/179726704-60699290-8b53-4dab-9f5b-59c8faae17b0.png)
 
 
+
 ### 승패 조건
 > 상대방의 사냥꾼 캐릭터를 죽이거나 기지를 파괴하면 승리하고, 반대의 경우 내가 패배한다!
 > ![KakaoTalk_20220719_184707407](https://user-images.githubusercontent.com/51320553/179727240-6be26858-4da7-4701-ab94-1a3a38b6ac4a.png)
 
 
+
 #### 참고자료
 * https://youtu.be/IONpYgEfk40
 * https://youtu.be/9Bn1C9O0hzY
+
 
 
 #### 개발팀원
