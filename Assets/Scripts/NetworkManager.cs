@@ -4,10 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using Photon.Realtime;
 using Photon.Pun;
+using TMPro;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
-    public InputField NicknameInput;
+    public TMP_InputField NicknameInput;
     public GameObject DisconnectPanel;
     public GameObject LoadingPanel;
     public GameObject SpawnPanel;
@@ -17,13 +18,19 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public bool hasVictoryDetermined;
     private void Awake()
     {
-        Screen.SetResolution(960, 540, false);
+        // Screen.SetResolution(960, 540, false);
         PhotonNetwork.SendRate = 60;
         PhotonNetwork.SerializationRate = 30;
         isHost = false;
     }
 
-    public void Connect() => PhotonNetwork.ConnectUsingSettings();
+    public void Connect()
+    {
+        if(!NicknameInput.text.Equals(""))
+        {
+            PhotonNetwork.ConnectUsingSettings();
+        }
+    }
 
     public override void OnConnectedToMaster()
     {
@@ -36,7 +43,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
-        PhotonNetwork.CreateRoom("Room", new RoomOptions { MaxPlayers = 2 });
+        PhotonNetwork.CreateRoom(null, new RoomOptions { MaxPlayers = 2 });
         isHost = true;
         LoadingPanel.SetActive(true);
     }

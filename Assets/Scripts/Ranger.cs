@@ -1,11 +1,11 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class Unit : MonoBehaviourPunCallbacks, IPunObservable
+public class Ranger : MonoBehaviourPunCallbacks, IPunObservable, IDamageable<float>
 {
 
     private Rigidbody2D rigidBody;
@@ -20,7 +20,8 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField] private float moveSpeed;
     [SerializeField] private float attackDistance;
     [SerializeField] private float attackCooldown;
-    [SerializeField] private float damage;
+    [SerializeField] private string bullet;
+    private bool isDead;
     //private Unit target;
 
     private float cooldownTimer = Mathf.Infinity;
@@ -43,6 +44,7 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
         animator = GetComponent<Animator>();
         capsuleCollider = GetComponent<CapsuleCollider2D>();
         currentHealth = maxHealth;
+        isDead = false;
         if (photonView.IsMine)
         {
             photonView.RPC("FlipXRPC", RpcTarget.All, isHost);
@@ -60,12 +62,14 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
             if (EnemyInSight())
             {
                 Stop();
-                if(cooldownTimer >= Random.Range((float)(attackCooldown - 0.2f), (float)(attackCooldown + 3.0f)))
+                if(cooldownTimer >= Random.Range((float)(attackCooldown - 0.2f), (float)(attackCooldown + 3.0f)) && !isDead)
                 // if (cooldownTimer >= attackCooldown)
                 {
                     cooldownTimer = 0;
                     photonView.RPC("AttackRPC", RpcTarget.All);
-                    enemyObj.transform.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, damage);
+                    PhotonView bulletPV = PhotonNetwork.Instantiate(bullet, transform.position + new Vector3(spriteRenderer.flipX ? -0.4f : 0.4f, -0.11f, 0), Quaternion.identity).GetComponent<PhotonView>();
+                    bulletPV.RPC("DirRPC", RpcTarget.All, spriteRenderer.flipX ? -1 : 1);
+                    bulletPV.RPC("FlipXRPC", RpcTarget.All, spriteRenderer.flipX);
                 }
 
             }
@@ -168,8 +172,8 @@ public class Unit : MonoBehaviourPunCallbacks, IPunObservable
             currentHealth -= damage;
             if(currentHealth <= 0)
             {
+                isDead = true;
                 photonView.RPC("DestroyRPC", RpcTarget.All);
-                
             }
             else
             {

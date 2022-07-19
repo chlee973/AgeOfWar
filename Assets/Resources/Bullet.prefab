@@ -145,3 +145,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PV: {fileID: 8896660315701381863}
+  canDamagePlayer: 1
+  damage: 3

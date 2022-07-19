@@ -261,10 +261,10 @@ GameObject:
   - component: {fileID: 5149419236688434455}
   - component: {fileID: 5149419236688434472}
   - component: {fileID: 5149419236688434473}
-  - component: {fileID: 711929083929963031}
   - component: {fileID: 6331872871012550448}
   - component: {fileID: 1719200037302209693}
   - component: {fileID: 7811504112548370528}
+  - component: {fileID: 1093941210163764765}
   m_Layer: 10
   m_Name: Wolf
   m_TagString: Unit
@@ -393,27 +393,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &711929083929963031
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5149419236688434474}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 938797037bbc727438645d74741c983a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  healthImage: {fileID: 6861312986447107359}
-  idleDistance: 0.5
-  moveSpeed: 1.2
-  attackDistance: 1
-  attackCooldown: 2
-  damage: 20
-  currentHealth: 0
-  maxHealth: 100
-  isRed: 0
 --- !u!114 &6331872871012550448
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -460,9 +439,9 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
-  - {fileID: 711929083929963031}
   - {fileID: 6331872871012550448}
   - {fileID: 7811504112548370528}
+  - {fileID: 1093941210163764765}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -482,3 +461,24 @@ MonoBehaviour:
   m_SynchronizeAngularVelocity: 0
   m_TeleportEnabled: 0
   m_TeleportIfDistanceGreaterThan: 3
+--- !u!114 &1093941210163764765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5149419236688434474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae902eee8408be3499e44d5a6221cd05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthImage: {fileID: 6861312986447107359}
+  idleDistance: 0.5
+  moveSpeed: 1
+  attackDistance: 0.7
+  attackCooldown: 1.2
+  damage: 15
+  currentHealth: 100
+  maxHealth: 100
+  isRed: 0

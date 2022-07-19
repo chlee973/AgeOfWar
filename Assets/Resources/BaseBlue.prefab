@@ -373,11 +373,11 @@ GameObject:
   - component: {fileID: 7616308308151011703}
   - component: {fileID: 7616308308151011696}
   - component: {fileID: 7616308308151011697}
-  - component: {fileID: 7616308308151011706}
   - component: {fileID: 7616308308151011705}
   - component: {fileID: 4496903521382571369}
   - component: {fileID: 430522007}
   - component: {fileID: 922177307}
+  - component: {fileID: 2992429653386665154}
   m_Layer: 0
   m_Name: BaseBlue
   m_TagString: Unit
@@ -493,7 +493,7 @@ MonoBehaviour:
   ObservedComponents:
   - {fileID: 7616308308151011696}
   - {fileID: 7616308308151011697}
-  - {fileID: 7616308308151011706}
+  - {fileID: 2992429653386665154}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -540,27 +540,6 @@ MonoBehaviour:
   m_SynchronizeAngularVelocity: 0
   m_TeleportEnabled: 0
   m_TeleportIfDistanceGreaterThan: 3
---- !u!114 &7616308308151011706
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7616308308151011698}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 938797037bbc727438645d74741c983a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  healthImage: {fileID: 688906649621007217}
-  idleDistance: 0
-  moveSpeed: 0
-  attackDistance: 0
-  attackCooldown: 100000000
-  damage: 0
-  currentHealth: 0
-  maxHealth: 300
-  isRed: 0
 --- !u!95 &7616308308151011705
 Animator:
   serializedVersion: 3
@@ -622,3 +601,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nicknameText: {fileID: 2092209662}
+--- !u!114 &2992429653386665154
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7616308308151011698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae902eee8408be3499e44d5a6221cd05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthImage: {fileID: 688906649621007217}
+  idleDistance: 0
+  moveSpeed: 0
+  attackDistance: 0
+  attackCooldown: 1e+9
+  damage: 0
+  currentHealth: 300
+  maxHealth: 300
+  isRed: 0
